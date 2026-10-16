@@ -1,178 +1,100 @@
+
 (() => {
   "use strict";
 
-  const $ = (selector) => document.querySelector(selector);
+  const $ = (id) => document.getElementById(id);
 
-  const statusText = $("#statusText");
-  const coreStatus = $("#coreStatus");
-  const eventsContainer = $("#events");
-  const eventCount = $("#eventCount");
-  const eventTimestamp = $("#eventTimestamp");
-  const activeModules = $("#activeModules");
-  const signalBtn = $("#signalBtn");
-  const notice = $("#notice");
-
-  const moduleNames = {
-    ghost_mode: "GHOST MODE",
-    auto_reply: "AUTO REPLY",
+  const state = {
+    modules: {
+      ghost_mode: false,
+      auto_reply: false,
+      specter: false,
+      archive: false
+    },
+    events: [],
+    sessionStarted: Date.now(),
+    scans: 0,
+    commandCount: 0
   };
 
-  const moduleStates = {
-    ghost_mode: false,
-    auto_reply: false,
-  };
+  const MAX_EVENTS = 80;
 
-  let noticeTimeout;
-  let busy = false;
-
-  const telegram = window.Telegram?.WebApp;
-
-  if (telegram) {
-    telegram.ready();
-    telegram.expand();
-
-    try {
-      telegram.setHeaderColor("#080608");
-      telegram.setBackgroundColor("#080608");
-    } catch (_) {
-      // Older Telegram clients may not support these methods.
-    }
+  function now() {
+    return new Date().toLocaleTimeString("ru-RU", { hour12: false });
   }
 
-  function showNotice(message) {
+  function notify(message) {
+    const notice = $("notice");
     if (!notice) return;
 
     notice.textContent = message;
     notice.classList.add("show");
 
-    clearTimeout(noticeTimeout);
-    noticeTimeout = setTimeout(() => {
+    if (state.noticeTimer) clearTimeout(state.noticeTimer);
+    state.noticeTimer = setTimeout(() => {
       notice.classList.remove("show");
-    }, 3000);
-  }
-
-  function haptic(style = "light") {
-    try {
-      telegram?.HapticFeedback?.impactOccurred(style);
-    } catch (_) {
-      // Haptics are optional.
-    }
-  }
-
-  async function request(url, options = {}) {
-    const response = await fetch(url, {
-      cache: "no-store",
-      ...options,
-      headers: {
-        Accept: "application/json",
-        ...(options.body ? { "Content-Type": "application/json" } : {}),
-        ...options.headers,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  function setConnection(online) {
-    if (statusText) {
-      statusText.textContent = online ? "SYSTEM ONLINE" : "CONNECTION LOST";
-    }
-
-    if (coreStatus) {
-      coreStatus.textContent = online ? "OPERATIONAL" : "OFFLINE";
-      coreStatus.style.color = online ? "var(--green)" : "var(--red)";
-    }
-  }
-
-  function formatTime(value) {
-    if (!value) return "--:--:--";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return "--:--:--";
-
-    return date.toLocaleTimeString("ru-RU", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    }, 3200);
   }
 
   function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (character) => {
-      const entities = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      };
+    return String(value).replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
 
-      return entities[character];
+  function addEvent(type, message) {
+    state.events.unshift({
+      type,
+      message,
+      time: now()
     });
+
+    state.events = state.events.slice(0, MAX_EVENTS);
+    renderEvents();
   }
 
-  function renderEvents(events) {
-    if (!eventsContainer) return;
+  function renderEvents() {
+    const container = $("events");
+    if (!container) return;
 
-    if (!Array.isArray(events) || events.length === 0) {
-      eventsContainer.innerHTML =
-        '<div class="empty-state">СОБЫТИЙ ПОКА НЕТ</div>';
-
-      if (eventCount) eventCount.textContent = "000";
-      if (eventTimestamp) eventTimestamp.textContent = "NO RECENT ACTIVITY";
-
-      return;
+    if (!state.events.length) {
+      container.innerHTML =
+        '<div class="empty-state">ЖУРНАЛ ОЖИДАЕТ СОБЫТИЙ...</div>';
+    } else {
+      container.innerHTML = state.events.map((event) => `
+        <div class="event-row">
+          <span class="event-type">${escapeHTML(event.type)}</span>
+          <span class="event-detail">${escapeHTML(event.message)}</span>
+          <span class="event-time">${escapeHTML(event.time)}</span>
+        </div>
+      `).join("");
     }
 
-    eventsContainer.innerHTML = events
-      .slice(0, 8)
-      .map((event) => {
-        const type = escapeHTML(event.type || "SYSTEM");
-        const detail = escapeHTML(event.detail || "Системное событие");
-        const time = escapeHTML(formatTime(event.created_at));
+    const count = $("eventCount");
+    if (count) count.textContent = String(state.events.length).padStart(3, "0");
 
-        return `
-          <article class="event-row">
-            <span class="event-type">${type}</span>
-            <span class="event-detail">${detail}</span>
-            <time class="event-time">${time}</time>
-          </article>
-        `;
-      })
-      .join("");
+    const timestamp = $("eventTimestamp");
+    if (timestamp) timestamp.textContent = `LAST EVENT // ${now()}`;
 
-    if (eventCount) {
-      eventCount.textContent = String(events.length).padStart(3, "0");
-    }
-
-    if (eventTimestamp) {
-      eventTimestamp.textContent = `UPDATED ${formatTime(
-        events[0]?.created_at
-      )}`;
+    const archiveCount = $("archiveCount");
+    if (archiveCount) {
+      archiveCount.textContent = `ЗАПИСЕЙ: ${state.events.length}`;
     }
   }
 
-  function renderModules(modules) {
-    let enabledCount = 0;
+  function renderModules() {
+    let active = 0;
 
-    for (const [key, name] of Object.entries(moduleNames)) {
-      const moduleData = modules?.[key];
-      const enabled =
-        typeof moduleData === "boolean"
-          ? moduleData
-          : Boolean(moduleData?.enabled);
+    Object.entries(state.modules).forEach(([key, enabled]) => {
+      const status = $(`${key}Status`);
+      const button = $(`${key}Btn`);
+      const card = document.querySelector(`[data-module="${key}"]`);
 
-      moduleStates[key] = enabled;
-
-      if (enabled) enabledCount++;
-
-      const status = $(`#${key}Status`);
-      const button = $(`#${key}Btn`);
+      if (enabled) active++;
 
       if (status) {
         status.textContent = enabled ? "ACTIVE" : "STANDBY";
@@ -181,139 +103,284 @@
 
       if (button) {
         button.classList.toggle("active", enabled);
-        button.setAttribute("aria-pressed", String(enabled));
-        button.innerHTML = enabled
-          ? 'ДЕАКТИВИРОВАТЬ <span>↘</span>'
-          : 'АКТИВИРОВАТЬ <span>↗</span>';
-      }
-    }
-
-    if (activeModules) {
-      activeModules.innerHTML = `${String(enabledCount).padStart(
-        2,
-        "0"
-      )} <small>/ 02</small>`;
-    }
-  }
-
-  async function refreshHealth() {
-    try {
-      await request("/api/health");
-      setConnection(true);
-    } catch (error) {
-      setConnection(false);
-      console.error("DARK.exe health check failed:", error);
-    }
-  }
-
-  async function refreshEvents() {
-    try {
-      const events = await request("/api/events");
-      renderEvents(events);
-    } catch (error) {
-      console.error("DARK.exe event refresh failed:", error);
-
-      if (eventsContainer && !eventsContainer.children.length) {
-        eventsContainer.innerHTML =
-          '<div class="empty-state">ЖУРНАЛ НЕДОСТУПЕН</div>';
-      }
-    }
-  }
-
-  async function refreshModules() {
-    try {
-      const modules = await request("/api/modules");
-      renderModules(modules);
-    } catch (error) {
-      // A deployment without module endpoints remains usable.
-      console.warn("Module API is unavailable:", error);
-      renderModules(moduleStates);
-    }
-  }
-
-  async function toggleModule(key) {
-    if (busy) return;
-
-    busy = true;
-
-    const button = $(`#${key}Btn`);
-
-    if (button) button.disabled = true;
-
-    try {
-      const result = await request(`/api/modules/${key}/toggle`, {
-        method: "POST",
-      });
-
-      if (typeof result.enabled === "boolean") {
-        moduleStates[key] = result.enabled;
+        if (key === "ghost_mode" || key === "auto_reply") {
+          button.textContent = enabled ? "ОТКЛЮЧИТЬ ↗" : "АКТИВИРОВАТЬ ↗";
+        }
       }
 
-      renderModules(moduleStates);
-      haptic("medium");
+      if (card) card.classList.toggle("active", enabled);
+    });
 
-      showNotice(
-        `${moduleNames[key]}: ${moduleStates[key] ? "ACTIVE" : "STANDBY"}`
-      );
-
-      await refreshEvents();
-    } catch (error) {
-      console.error("Module toggle failed:", error);
-      showNotice("Не удалось переключить модуль. Проверь API.");
-    } finally {
-      busy = false;
-
-      if (button) button.disabled = false;
-    }
+    const activeModules = $("activeModules");
+    if (activeModules) activeModules.textContent = String(active).padStart(2, "0");
   }
 
-  async function sendSignal() {
-    if (busy) return;
+  function terminalLine(text, className = "terminal-output") {
+    const output = $("terminalOutput");
+    if (!output) return;
 
-    busy = true;
+    const line = document.createElement("div");
+    line.className = className;
+    line.textContent = text;
 
-    if (signalBtn) signalBtn.disabled = true;
-
-    try {
-      await request("/api/events/demo", {
-        method: "POST",
-      });
-
-      haptic("medium");
-      showNotice("Сигнал успешно отправлен.");
-      await refreshEvents();
-    } catch (error) {
-      console.error("Signal request failed:", error);
-      showNotice("Ошибка отправки сигнала. Проверь подключение.");
-    } finally {
-      busy = false;
-
-      if (signalBtn) signalBtn.disabled = false;
+    const cursor = output.querySelector(".terminal-cursor");
+    if (cursor && cursor.parentElement) {
+      cursor.parentElement.remove();
     }
+
+    output.appendChild(line);
+
+    const prompt = document.createElement("div");
+    prompt.innerHTML =
+      '<span class="terminal-prompt">root@dark:~$</span> ' +
+      '<span class="terminal-cursor">_</span>';
+    output.appendChild(prompt);
+
+    while (output.children.length > 35) {
+      output.removeChild(output.firstElementChild);
+    }
+
+    output.scrollTop = output.scrollHeight;
   }
 
-  for (const key of Object.keys(moduleNames)) {
-    const button = $(`#${key}Btn`);
+  function runScan() {
+    state.scans++;
+
+    const integrity = Math.max(91, 99 - Math.floor(Math.random() * 8));
+    const link = 55 + Math.floor(Math.random() * 43);
+    const load = 15 + Math.floor(Math.random() * 70);
+
+    setMeter("integrity", integrity);
+    setMeter("link", link);
+    setMeter("load", load);
+
+    if ($("specterStatus")) {
+      $("specterStatus").textContent = "SCANNED";
+    }
+
+    if ($("heroState")) $("heroState").textContent = "SCAN COMPLETE";
+    if ($("coreVisualState")) $("coreVisualState").textContent = "SCAN COMPLETE";
+    if ($("signalStrength")) $("signalStrength").textContent = link > 75 ? "STABLE" : "UNSTABLE";
+
+    addEvent("SPECTER_SCAN", `Сканирование №${state.scans} завершено.`);
+    terminalLine(`scan complete // integrity ${integrity}% // link ${link}%`);
+
+    notify("Сканирование завершено. Отчёт обновлён.");
+  }
+
+  function setMeter(name, value) {
+    const valueEl = $(`${name}Value`);
+    const meterEl = $(`${name}Meter`);
+
+    if (valueEl) valueEl.textContent = `${value}%`;
+    if (meterEl) meterEl.style.width = `${value}%`;
+  }
+
+  function runDiagnostics() {
+    runScan();
+    addEvent("DIAGNOSTICS", "Полная локальная диагностика завершена.");
+    terminalLine("diagnostics --all // OK");
+    notify("Диагностика интерфейса завершена.");
+  }
+
+  function toggleModule(key) {
+    if (!(key in state.modules)) return;
+
+    if (key === "specter" || key === "archive") {
+      if (key === "specter") runScan();
+      else openArchive();
+      return;
+    }
+
+    state.modules[key] = !state.modules[key];
+    renderModules();
+
+    const label = key === "ghost_mode" ? "GHOST MODE" : "AUTO REPLY";
+    const status = state.modules[key] ? "активирован" : "отключён";
+
+    addEvent("MODULE_STATE", `${label}: ${status}.`);
+    terminalLine(`${key} // ${state.modules[key] ? "ACTIVE" : "STANDBY"}`);
+    notify(`${label}: ${status}. Демонстрационный режим.`);
+  }
+
+  function openArchive() {
+    const section = $("archiveSection");
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    if ($("archiveStatus")) $("archiveStatus").textContent = "OPEN";
+    addEvent("ARCHIVE", "Открыт локальный архив сессии.");
+    terminalLine(`archive --open // ${state.events.length} records`);
+  }
+
+  function refreshSystem() {
+    if ($("connectionLabel")) $("connectionLabel").textContent = "LINK REFRESHED";
+    if ($("footerStatus")) $("footerStatus").textContent = "SYSTEM ONLINE";
+    if ($("heroState")) $("heroState").textContent = "CORE SYNCHRONIZED";
+
+    addEvent("SYNC", "Локальная панель синхронизирована.");
+    terminalLine("sync --local // complete");
+    notify("Данные интерфейса обновлены.");
+  }
+
+  function protocolInfo() {
+    notify("ПРОТОКОЛ 09 // Демонстрационный режим. Внешние системы не подключены.");
+    addEvent("PROTOCOL", "Запрошена информация о протоколе 09.");
+    terminalLine("protocol 09 --info // local demo");
+  }
+
+  function revealFragment() {
+    const content = $("revealContent");
+    const button = $("revealBtn");
+
+    if (!content) return;
+
+    const opening = content.hidden;
+    content.hidden = !opening;
 
     if (button) {
-      button.addEventListener("click", () => toggleModule(key));
+      button.textContent = opening ? "ЗАКРЫТЬ ФРАГМЕНТ ↗" : "РАСШИФРОВАТЬ ФРАГМЕНТ ↗";
+    }
+
+    addEvent("ARCHIVE_FRAGMENT", opening ? "Фрагмент DX-001 открыт." : "Фрагмент DX-001 закрыт.");
+    terminalLine(`fragment DX-001 // ${opening ? "DECODED" : "SEALED"}`);
+  }
+
+  function executeCommand(raw) {
+    const command = raw.trim().toLowerCase();
+    if (!command) return;
+
+    state.commandCount++;
+    terminalLine(`command // ${raw}`, "terminal-prompt");
+
+    switch (command) {
+      case "help":
+        terminalLine("commands: help, status, scan, events, modules, clear, time, about");
+        break;
+
+      case "status":
+        terminalLine(`system online // modules ${Object.values(state.modules).filter(Boolean).length}/4`);
+        break;
+
+      case "scan":
+        runScan();
+        break;
+
+      case "events":
+        terminalLine(`event log // ${state.events.length} records`);
+        state.events.slice(0, 5).forEach((event) => {
+          terminalLine(`${event.time} [${event.type}] ${event.message}`);
+        });
+        break;
+
+      case "modules":
+        Object.entries(state.modules).forEach(([key, enabled]) => {
+          terminalLine(`${key} // ${enabled ? "ACTIVE" : "STANDBY"}`);
+        });
+        break;
+
+      case "clear":
+        if ($("terminalOutput")) {
+          $("terminalOutput").replaceChildren();
+        }
+        terminalLine("terminal cleared // local session");
+        break;
+
+      case "time":
+        terminalLine(`local time // ${now()}`);
+        break;
+
+      case "about":
+        terminalLine("DARK.exe // unknown system // demo build 1.0");
+        break;
+
+      default:
+        terminalLine(`unknown command: ${raw}`);
+        terminalLine("type help to list available demo commands");
+    }
+
+    addEvent("TERMINAL", `Выполнена команда: ${raw}`);
+  }
+
+  function updateClock() {
+    const clock = $("systemClock");
+    if (clock) clock.textContent = now();
+  }
+
+  function initTelegram() {
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (!tg) return;
+
+    try {
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor("#080608");
+      tg.setBackgroundColor("#080608");
+    } catch (error) {
+      // Сайт продолжает работать и вне Telegram.
     }
   }
 
-  if (signalBtn) {
-    signalBtn.addEventListener("click", sendSignal);
+  function bind(id, handler) {
+    const element = $(id);
+    if (element) element.addEventListener("click", handler);
   }
 
-  async function initialize() {
-    await Promise.all([
-      refreshHealth(),
-      refreshEvents(),
-      refreshModules(),
-    ]);
+  function init() {
+    initTelegram();
+    renderModules();
+    renderEvents();
+    updateClock();
+
+    bind("signalBtn", () => {
+      addEvent("SIGNAL", "Пользователь инициировал демонстрационный сигнал.");
+      if ($("heroState")) $("heroState").textContent = "SIGNAL TRANSMITTED";
+      if ($("coreVisualState")) $("coreVisualState").textContent = "SIGNAL TRANSMITTED";
+      terminalLine("signal --init // simulated");
+      notify("Демонстрационный сигнал инициирован.");
+    });
+
+    bind("scanBtn", runScan);
+    bind("specterBtn", runScan);
+    bind("diagnosticBtn", runDiagnostics);
+    bind("refreshBtn", refreshSystem);
+    bind("protocolBtn", protocolInfo);
+    bind("revealBtn", revealFragment);
+    bind("archiveBtn", openArchive);
+    bind("viewArchiveBtn", openArchive);
+
+    bind("clearEventsBtn", () => {
+      state.events = [];
+      renderEvents();
+      addEvent("LOG", "Локальный журнал очищен.");
+      notify("Журнал очищен.");
+    });
+
+    document.querySelectorAll("[data-module]").forEach((button) => {
+      if (button.tagName !== "BUTTON") return;
+      const key = button.dataset.module;
+      if (key) button.addEventListener("click", () => toggleModule(key));
+    });
+
+    const form = $("terminalForm");
+    const input = $("terminalInput");
+
+    if (form && input) {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const command = input.value;
+        input.value = "";
+        executeCommand(command);
+      });
+    }
+
+    addEvent("BOOT", "DARK.exe UI initialized.");
+    terminalLine("system_check --all // complete");
+    setInterval(updateClock, 1000);
   }
 
-  initialize();
-
-  window.setInterval(refreshHealth, 15000);
-  window.setInterval(refreshEvents, 15000);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
