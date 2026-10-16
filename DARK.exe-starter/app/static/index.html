@@ -1,138 +1,283 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080608">
-  <meta name="description" content="DARK.exe — system control interface">
-  <title>DARK.exe — Control Center</title>
+  <meta name="description" content="DARK.exe — интерфейс экспериментальной системы">
+  <title>DARK.exe // UNKNOWN SYSTEM</title>
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="/static/app.js" defer></script>
 </head>
 <body>
-  <div class="noise"></div>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="/">
+    <a class="brand" href="#home">
       <span class="brand-mark">D</span>
-      <span>DARK<span class="red">.exe</span><small>CONTROL SYSTEM</small></span>
+      <span>DARK<span class="red">.exe</span><small>UNKNOWN SYSTEM / 001</small></span>
     </a>
     <div class="connection">
       <span class="pulse"></span>
-      <span id="statusText">CONNECTING...</span>
+      <span id="connectionLabel">ESTABLISHING LINK</span>
     </div>
   </header>
 
-  <main class="container">
+  <main class="container" id="home">
     <section class="hero">
       <div class="hero-copy">
-        <div class="eyebrow"><span></span> SECURE ENVIRONMENT / 001</div>
-        <h1>TAKE<br>CONTROL<span class="red">.</span></h1>
-        <p>Система активна. Контроль начинается здесь.</p>
+        <div class="eyebrow"><span></span> RESTRICTED ENVIRONMENT // CLASSIFIED</div>
+        <h1>TAKE<br><span class="red">CONTROL.</span></h1>
+        <p>Неизвестная система обнаружена.<br>Источник сигнала не установлен.</p>
         <div class="hero-actions">
-          <button class="primary-button" id="signalBtn">
-            <span>ИНИЦИИРОВАТЬ СИГНАЛ</span><span>↗</span>
+          <button class="primary-button" id="signalBtn" type="button">
+            ИНИЦИИРОВАТЬ СИГНАЛ <span>↗</span>
           </button>
-          <span class="hero-meta">DARK CORE <b id="coreStatus">INITIALIZING</b></span>
+          <button class="secondary-button" id="scanBtn" type="button">
+            ЗАПУСТИТЬ СКАНИРОВАНИЕ
+          </button>
         </div>
+        <div class="hero-meta">SESSION // 001 <b id="heroState">CORE INITIALIZING</b></div>
       </div>
 
-      <div class="core-visual" aria-label="DARK core visualization">
+      <div class="core-visual" aria-label="Визуализация ядра">
+        <div class="core-cross"></div>
         <div class="core-ring ring-one"></div>
         <div class="core-ring ring-two"></div>
         <div class="core-ring ring-three"></div>
-        <div class="core-cross"></div>
         <div class="core-center"><span>D</span></div>
-        <span class="orbit-label label-top">CORE // 001</span>
-        <span class="orbit-label label-bottom">SYSTEM ONLINE</span>
+        <span class="orbit-label label-top">UNKNOWN ENTITY</span>
+        <span class="orbit-label label-bottom" id="coreVisualState">SIGNAL DETECTED</span>
+        <span class="orbit-coordinate coordinate-left">X: 001</span>
+        <span class="orbit-coordinate coordinate-right">SYS: DARK</span>
       </div>
     </section>
 
-    <section class="stats-grid">
+    <section class="system-strip">
+      <div><span class="strip-label">SYSTEM TIME</span><strong id="systemClock">--:--:--</strong></div>
+      <div><span class="strip-label">SESSION ID</span><strong>DX-001-A</strong></div>
+      <div><span class="strip-label">SECURITY LEVEL</span><strong class="red" id="securityLevel">LEVEL 04</strong></div>
+      <div><span class="strip-label">SIGNAL</span><strong id="signalStrength">UNSTABLE</strong></div>
+    </section>
+
+    <section class="stats-grid" aria-label="Состояние системы">
       <article class="stat-card">
         <span class="stat-label">SYSTEM STATUS</span>
-        <strong class="stat-value"><span class="pulse"></span> ONLINE</strong>
+        <div class="stat-value"><span class="pulse"></span><span id="statusText">ONLINE</span></div>
         <span class="stat-foot">Основное ядро</span>
       </article>
       <article class="stat-card">
         <span class="stat-label">ACTIVE MODULES</span>
-        <strong class="stat-value" id="activeModules">00 <small>/ 02</small></strong>
+        <div class="stat-value"><span id="activeModules">00</span><small>/ 04</small></div>
         <span class="stat-foot">Модули управления</span>
       </article>
       <article class="stat-card">
         <span class="stat-label">EVENT LOG</span>
-        <strong class="stat-value" id="eventCount">001</strong>
+        <div class="stat-value" id="eventCount">000</div>
         <span class="stat-foot">Системные события</span>
       </article>
     </section>
 
     <section class="section">
       <div class="section-heading">
-        <div><span class="eyebrow">01 / CONFIGURATION</span><h2>МОДУЛИ <span class="red">СИСТЕМЫ</span></h2></div>
-        <span class="section-tag">2 MODULES</span>
+        <div>
+          <div class="eyebrow"><span></span> 01 / CONTROL</div>
+          <h2>МОДУЛИ <span class="red">СИСТЕМЫ</span></h2>
+        </div>
+        <span class="section-tag">4 MODULES / LOCAL DEMO</span>
       </div>
 
       <div class="modules-grid">
-        <article class="module-card">
+        <article class="module-card" data-module="ghost_mode">
           <div class="module-top">
-            <div class="module-icon">◈</div>
-            <span class="module-index">MOD. 001</span>
+            <span class="module-icon">◈</span>
+            <span class="module-index">MOD. 001 // PRESENCE</span>
           </div>
           <h3>GHOST MODE</h3>
-          <p>Локальный режим скрытого присутствия в интерфейсе.</p>
+          <p>Локальный визуальный режим скрытого присутствия в интерфейсе.</p>
           <div class="module-bottom">
             <span class="module-status" id="ghost_modeStatus">STANDBY</span>
-            <button class="toggle-button" id="ghost_modeBtn" type="button">АКТИВИРОВАТЬ <span>↗</span></button>
+            <button class="toggle-button" id="ghost_modeBtn" data-module="ghost_mode" type="button">АКТИВИРОВАТЬ ↗</button>
           </div>
         </article>
 
-        <article class="module-card">
+        <article class="module-card" data-module="auto_reply">
           <div class="module-top">
-            <div class="module-icon">⌘</div>
-            <span class="module-index">MOD. 002</span>
+            <span class="module-icon">⌘</span>
+            <span class="module-index">MOD. 002 // RESPONSE</span>
           </div>
           <h3>AUTO REPLY</h3>
           <p>Демонстрационный модуль автоматизации ответов.</p>
           <div class="module-bottom">
             <span class="module-status" id="auto_replyStatus">STANDBY</span>
-            <button class="toggle-button" id="auto_replyBtn" type="button">АКТИВИРОВАТЬ <span>↗</span></button>
+            <button class="toggle-button" id="auto_replyBtn" data-module="auto_reply" type="button">АКТИВИРОВАТЬ ↗</button>
+          </div>
+        </article>
+
+        <article class="module-card" data-module="specter">
+          <div class="module-top">
+            <span class="module-icon">⟁</span>
+            <span class="module-index">MOD. 003 // SCANNER</span>
+          </div>
+          <h3>SPECTER SCAN</h3>
+          <p>Имитация сканирования состояния интерфейса с визуальным отчётом.</p>
+          <div class="module-bottom">
+            <span class="module-status" id="specterStatus">STANDBY</span>
+            <button class="toggle-button" id="specterBtn" data-action="scan" type="button">СКАНИРОВАТЬ ↗</button>
+          </div>
+        </article>
+
+        <article class="module-card" data-module="archive">
+          <div class="module-top">
+            <span class="module-icon">▤</span>
+            <span class="module-index">MOD. 004 // MEMORY</span>
+          </div>
+          <h3>BLACK ARCHIVE</h3>
+          <p>Локальный архив событий этой сессии и история действий панели.</p>
+          <div class="module-bottom">
+            <span class="module-status" id="archiveStatus">READY</span>
+            <button class="toggle-button" id="archiveBtn" data-action="archive" type="button">ОТКРЫТЬ АРХИВ ↗</button>
           </div>
         </article>
       </div>
-      <p class="module-disclaimer">Модули пока переключают состояние панели и не выполняют внешних действий.</p>
+
+      <p class="module-disclaimer">Модули работают в демонстрационном режиме. Внешние системы не контролируются.</p>
     </section>
 
-    <section class="section">
+    <section class="section" id="diagnostics">
       <div class="section-heading">
-        <div><span class="eyebrow">02 / ACTIVITY</span><h2>ЖУРНАЛ <span class="red">СОБЫТИЙ</span></h2></div>
-        <span class="section-tag">LIVE FEED</span>
+        <div>
+          <div class="eyebrow"><span></span> 02 / DIAGNOSTICS</div>
+          <h2>СОСТОЯНИЕ <span class="red">ЯДРА</span></h2>
+        </div>
+        <span class="section-tag">LIVE DIAGNOSTICS</span>
       </div>
 
+      <div class="diagnostic-grid">
+        <article class="diagnostic-card">
+          <div class="diagnostic-top"><span>CORE INTEGRITY</span><span id="integrityValue">98%</span></div>
+          <div class="meter"><span id="integrityMeter" style="width:98%"></span></div>
+          <p>Целостность интерфейса</p>
+        </article>
+        <article class="diagnostic-card">
+          <div class="diagnostic-top"><span>LINK STABILITY</span><span id="linkValue">72%</span></div>
+          <div class="meter"><span id="linkMeter" style="width:72%"></span></div>
+          <p>Визуальный индикатор связи</p>
+        </article>
+        <article class="diagnostic-card">
+          <div class="diagnostic-top"><span>PROCESS LOAD</span><span id="loadValue">31%</span></div>
+          <div class="meter"><span id="loadMeter" style="width:31%"></span></div>
+          <p>Демонстрационная нагрузка</p>
+        </article>
+      </div>
+
+      <div class="action-grid">
+        <button class="action-tile" id="diagnosticBtn" type="button"><span>⌬</span><b>ПОЛНАЯ ДИАГНОСТИКА</b><small>Проверить интерфейс</small></button>
+        <button class="action-tile" id="refreshBtn" type="button"><span>⟳</span><b>СИНХРОНИЗАЦИЯ</b><small>Обновить данные панели</small></button>
+        <button class="action-tile" id="protocolBtn" type="button"><span>⛨</span><b>ПРОТОКОЛ 09</b><small>Открыть информацию</small></button>
+        <button class="action-tile" id="clearEventsBtn" type="button"><span>⌫</span><b>ОЧИСТИТЬ ЖУРНАЛ</b><small>Очистить локальный список</small></button>
+      </div>
+    </section>
+
+    <section class="section" id="eventsSection">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow"><span></span> 03 / ACTIVITY</div>
+          <h2>ЖУРНАЛ <span class="red">СОБЫТИЙ</span></h2>
+        </div>
+        <span class="section-tag">LOCAL EVENT FEED</span>
+      </div>
       <div class="events-panel">
-        <div class="events-toolbar"><span><i class="pulse"></i> SYSTEM FEED</span><span id="eventTimestamp">WAITING FOR DATA...</span></div>
-        <div id="events" class="events-list">
+        <div class="events-toolbar">
+          <span><span class="pulse"></span> SYSTEM FEED</span>
+          <span id="eventTimestamp">WAITING FOR DATA...</span>
+        </div>
+        <div class="events-list" id="events" aria-live="polite">
           <div class="empty-state">ИНИЦИАЛИЗАЦИЯ ЖУРНАЛА...</div>
         </div>
       </div>
     </section>
 
-    <section class="terminal-panel">
-      <div class="terminal-header"><span><i></i><i></i><i></i></span><b>DARK_TERMINAL</b><span>SESSION 001</span></div>
-      <div class="terminal-content">
-        <p><span class="terminal-prompt">root@dark:~$</span> system_check --all</p>
-        <p class="terminal-output">Загрузка интерфейса управления...</p>
-        <p><span class="terminal-prompt">root@dark:~$</span> <span class="terminal-cursor">_</span></p>
+    <section class="section" id="archiveSection">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow"><span></span> 04 / BLACK ARCHIVE</div>
+          <h2>ЗАПЕЧАТАННЫЙ <span class="red">АРХИВ</span></h2>
+        </div>
+        <span class="section-tag">SESSION STORAGE</span>
+      </div>
+      <div class="archive-panel">
+        <div class="archive-symbol">◈</div>
+        <div class="archive-copy">
+          <h3>ФРАГМЕНТ DX-001</h3>
+          <p>Архив текущей сессии. Здесь отображаются доступные локальные события.</p>
+          <span id="archiveCount">ЗАПИСЕЙ: 0</span>
+        </div>
+        <button class="secondary-button" id="viewArchiveBtn" type="button">ПРОСМОТРЕТЬ ↗</button>
       </div>
     </section>
 
-    <div id="notice" class="notice" role="status"></div>
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow"><span></span> 05 / TERMINAL</div>
+          <h2>DARK<span class="red">_TERMINAL</span></h2>
+        </div>
+        <span class="section-tag">SESSION 001</span>
+      </div>
+      <div class="terminal-panel">
+        <div class="terminal-header">
+          <span><i></i><i></i><i></i></span>
+          <b>root@dark:~</b>
+          <span>LOCAL DEMO</span>
+        </div>
+        <div class="terminal-content" id="terminalOutput" aria-live="polite">
+          <div class="terminal-prompt">root@dark:~$ system_check --all</div>
+          <div class="terminal-output">Загрузка интерфейса управления...</div>
+          <div class="terminal-output">Ожидание команды пользователя.</div>
+          <div><span class="terminal-prompt">root@dark:~$</span> <span class="terminal-cursor">_</span></div>
+        </div>
+        <form class="terminal-input-row" id="terminalForm">
+          <label for="terminalInput">root@dark:~$</label>
+          <input id="terminalInput" name="command" type="text" placeholder="Введи help..." autocomplete="off" maxlength="120">
+          <button type="submit">EXECUTE ↗</button>
+        </form>
+      </div>
+      <p class="module-disclaimer">Терминал принимает только встроенные демонстрационные команды. Он не выполняет команды macOS или сервера.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow"><span></span> 06 / CLASSIFIED</div>
+          <h2>НЕИЗВЕСТНЫЙ <span class="red">ПРОТОКОЛ</span></h2>
+        </div>
+      </div>
+      <div class="protocol-panel">
+        <div class="protocol-status"><span class="pulse"></span> SIGNAL DETECTED</div>
+        <h3>ТЫ НЕ ДОЛЖЕН БЫЛ ЭТО УВИДЕТЬ.</h3>
+        <p>Источник: неизвестен. Происхождение: не установлено. Статус: наблюдение продолжается.</p>
+        <button class="primary-button" id="revealBtn" type="button">РАСШИФРОВАТЬ ФРАГМЕНТ ↗</button>
+        <div class="reveal-content" id="revealContent" hidden>
+          <span>FRAGMENT // 001</span>
+          <p>Система ждала подключения. Теперь сессия активна.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
-    <span>DARK<span class="red">.exe</span> <span class="footer-muted">© 2026</span></span>
-    <span>BUILT FOR THE UNKNOWN <span class="red">●</span></span>
+    <span>DARK.exe © 2026</span>
+    <span class="footer-muted">BUILT FOR THE UNKNOWN</span>
+    <span><span class="pulse"></span> <span id="footerStatus">SYSTEM ONLINE</span></span>
   </footer>
 
-  <script src="/static/app.js"></script>
+  <div class="notice" id="notice" role="status" aria-live="polite"></div>
 </body>
 </html>
