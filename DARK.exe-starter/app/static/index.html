@@ -1,6 +1,143 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080608"><title>DARK.exe</title><script src="https://telegram.org/js/telegram-web-app.js"></script><link rel="stylesheet" href="/static/style.css"></head>
-<body><div class="scanlines"></div><header><div class="brand"><span>⛧</span><div><b>DARK.exe</b><small>UNSTABLE BUILD // 0.1.0</small></div></div><div class="status"><i></i><span id="statusText">ПРОВЕРКА</span></div></header>
-<main><section class="panel hero"><small class="eyebrow">/// НЕСАНКЦИОНИРОВАННЫЙ ДОСТУП</small><div class="face">☠</div><h1>СИСТЕМА<br><em>ПОВРЕЖДЕНА</em></h1><p>Мы заметили твой сигнал. Не закрывай окно.</p><div class="progress"><span></span></div><small>CORE: <b id="coreStatus">UNKNOWN</b>　 THREAT: <b class="red">CRITICAL</b></small></section>
-<section class="grid"><article class="panel stat"><small>СОСТОЯНИЕ ЯДРА</small><strong id="core">--</strong><span class="red">/// нестабильно</span></article><article class="panel stat"><small>СИГНАЛ</small><strong>666<span class="red">%</span></strong><span>источник неизвестен</span></article></section>
-<section class="panel logs"><div class="head"><b>ЖУРНАЛ СОБЫТИЙ</b><span class="red">● LIVE</span></div><div id="events"></div><button id="signalBtn">☠ ОТПРАВИТЬ СИГНАЛ</button><p id="notice">Нажатие создаст тестовую запись в журнале.</p></section><footer>© DARK.exe // НЕ ДОВЕРЯЙ ТИШИНЕ <span>v0.1.0</span></footer></main><script src="/static/app.js"></script></body></html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080608">
+  <meta name="description" content="DARK.exe — системная панель управления">
+  <title>DARK.exe // CONTROL PANEL</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="scanlines"></div>
+
+  <header>
+    <div class="brand">
+      <span class="brand-icon">⛧</span>
+      <div>
+        <b>DARK.exe</b>
+        <small>CONTROL PANEL // BUILD 0.2.0</small>
+      </div>
+    </div>
+
+    <div class="status">
+      <i></i>
+      <span id="statusText">ПРОВЕРКА СИСТЕМЫ...</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel hero">
+      <small class="eyebrow">/// SYSTEM INITIALIZATION</small>
+      <div class="face">☠</div>
+      <h1>DARK<span class="red">.exe</span><br><em>CONTROL CENTER</em></h1>
+      <p>Система готова. Ожидание команды оператора.</p>
+
+      <div class="progress"><span></span></div>
+
+      <div class="hero-meta">
+        <span>CORE: <b id="coreStatus">UNKNOWN</b></span>
+        <span>THREAT: <b class="red">UNKNOWN</b></span>
+        <span>ACCESS: <b class="red">LOCAL</b></span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel stat">
+        <small>СОСТОЯНИЕ ЯДРА</small>
+        <strong id="core">--</strong>
+        <span class="red">/// SYSTEM STATUS</span>
+      </article>
+
+      <article class="panel stat">
+        <small>СИГНАЛ ОПЕРАТОРА</small>
+        <strong>666<span class="red">%</span></strong>
+        <span>/// SIGNAL READY</span>
+      </article>
+    </section>
+
+    <section class="panel modules">
+      <div class="head">
+        <b>МОДУЛИ СИСТЕМЫ</b>
+        <span class="red">02 MODULES</span>
+      </div>
+
+      <article class="module">
+        <div class="module-icon">◈</div>
+        <div class="module-info">
+          <h3>GHOST MODE</h3>
+          <p>Переключатель режима интерфейса. Не обеспечивает реальную анонимность.</p>
+          <small>COMMAND: <code>ghost_mode</code></small>
+        </div>
+        <div class="module-controls">
+          <span id="ghost_modeStatus" class="module-status">STANDBY</span>
+          <button id="ghost_modeBtn" class="small-button">ACTIVATE</button>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-icon">⌁</div>
+        <div class="module-info">
+          <h3>AUTO REPLY</h3>
+          <p>Переключатель модуля автоответчика. Для отправки сообщений нужна отдельная интеграция.</p>
+          <small>COMMAND: <code>auto_reply</code></small>
+        </div>
+        <div class="module-controls">
+          <span id="auto_replyStatus" class="module-status">STANDBY</span>
+          <button id="auto_replyBtn" class="small-button">ACTIVATE</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel logs">
+      <div class="head">
+        <b>ЖУРНАЛ СОБЫТИЙ</b>
+        <span class="red"><i class="live-dot"></i> LIVE</span>
+      </div>
+
+      <div id="events" aria-live="polite">
+        <div class="event">
+          <time>--:--:--</time>
+          <b class="red">[BOOT]</b>
+          <span>Ожидание ответа сервера...</span>
+        </div>
+      </div>
+
+      <button id="signalBtn" class="primary-button">☠ ОТПРАВИТЬ СИГНАЛ</button>
+      <p id="notice">Нажатие создаст тестовую запись в журнале.</p>
+    </section>
+
+    <section class="panel terminal">
+      <div class="head">
+        <b>ИНФОРМАЦИЯ</b>
+        <span class="red">READ ONLY</span>
+      </div>
+
+      <div class="terminal-line">
+        <span class="red">root@dark:~$</span> system.status
+      </div>
+      <div class="terminal-line">
+        <span class="terminal-label">API</span>
+        <span>Проверка доступности сервера</span>
+      </div>
+      <div class="terminal-line">
+        <span class="terminal-label">EVENTS</span>
+        <span>Журнал последних событий</span>
+      </div>
+      <div class="terminal-line">
+        <span class="terminal-label">MODULES</span>
+        <span>Переключение статусов модулей</span>
+      </div>
+      <p class="terminal-note">Модули меняют внутренний статус панели. Внешние действия не выполняются без соответствующей интеграции.</p>
+    </section>
+
+    <footer>
+      © DARK.exe // SYSTEM INTERFACE
+      <span>v0.2.0</span>
+    </footer>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
