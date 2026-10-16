@@ -1,36 +1,54 @@
 
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from datetime import datetime
 from pathlib import Path
+
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="DARK.exe API")
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "app" / "static"
 
+events = [
+    {
+        "type": "SYSTEM",
+        "detail": "DARK.exe ONLINE",
+        "created_at": datetime.now().astimezone().isoformat()
+    }
+]
 
-@app.get("/", response_class=HTMLResponse)
+app.mount(
+    "/static",
+    StaticFiles(directory=str(WEB)),
+    name="static"
+)
+
+
+@app.get("/")
 async def home():
-    index_file = WEB / "index.html"
-    if index_file.exists():
-        return index_file.read_text(encoding="utf-8")
-    return "<h1>DARK.exe</h1><p>System online.</p>"
+    return FileResponse(WEB / "index.html")
 
 
 @app.get("/api/health")
 async def health():
     return {
-        "status": "online",
-        "system": "DARK.exe"
+        "system": "DARK.exe",
+        "status": "online"
     }
 
 
 @app.get("/api/events")
-async def events():
-    return {
-        "events": [
-            {"time": "00:00:01", "message": "SYSTEM INITIALIZED"},
-            {"time": "00:00:02", "message": "CONNECTION ESTABLISHED"},
-            {"time": "00:00:03", "message": "DARK.exe ONLINE"}
-        ]
-    }
+async def get_events():
+    return events[:8]
+
+
+@app.post("/api/events/demo")
+async def demo_event():
+    events.insert(0, {
+        "type": "USER_SIGNAL",
+        "detail": "Тестовое событие интерфейса",
+        "created_at": datetime.now().astimezone().isoformat()
+    })
+    return {"ok": True}
