@@ -1,52 +1,51 @@
+
 import asyncio
 import logging
 
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import (
     Message,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
     WebAppInfo,
 )
 
-from app.config import settings
+BOT_TOKEN = ""
+WEBAPP_URL = "https://dark-exe-starter.vercel.app"
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("DARK.exe")
-
-bot = Bot(token=settings.bot_token)
 dp = Dispatcher()
 
 
 @dp.message(CommandStart())
-async def start_handler(message: Message):
-    if not settings.bot_token:
-        await message.answer("DARK.exe: BOT_TOKEN не настроен.")
-        return
-
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
+async def start(message: Message):
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
             [
-                InlineKeyboardButton(
+                KeyboardButton(
                     text="ОТКРЫТЬ DARK.exe",
-                    web_app=WebAppInfo(url=settings.webapp_url),
+                    web_app=WebAppInfo(url=WEBAPP_URL),
                 )
             ]
-        ]
+        ],
+        resize_keyboard=True,
     )
 
     await message.answer(
-        "◈ DARK.exe CONTROL CENTER\n\n"
+        "DARK.exe // ACCESS TERMINAL\n\n"
         "Система готова к запуску.\n"
-        "Нажми кнопку ниже, чтобы открыть панель.",
+        "Нажми кнопку, чтобы открыть интерфейс.",
         reply_markup=keyboard,
     )
 
 
 async def main():
-    if not settings.bot_token:
-        raise RuntimeError("Укажи BOT_TOKEN в файле .env")
+    if not BOT_TOKEN:
+        raise RuntimeError(
+            "Добавь токен бота в переменную BOT_TOKEN."
+        )
+
+    bot = Bot(token=BOT_TOKEN)
 
     try:
         await dp.start_polling(bot)
@@ -55,4 +54,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
