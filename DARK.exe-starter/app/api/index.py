@@ -1,180 +1,134 @@
-from datetime import datetime
+
+from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(
-    title="DARK.exe",
-    description="DARK.exe Control System API",
-    version="2.0.0",
-)
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_DIR = BASE_DIR / "static"
 
-ROOT = Path(__file__).resolve().parent.parent
-WEB = ROOT / "static"
+app = FastAPI(title="DARK.exe API", version="1.0.0")
 
 lock = Lock()
 
-events = [
-    {
-        "type": "SYSTEM",
-        "detail": "DARK.exe Control System initialized",
-        "created_at": datetime.now().astimezone().isoformat(),
-    }
-]
-
 modules = {
-    "ghost_mode": {
-        "name": "GHOST MODE",
-        "enabled": False,
-    },
-    "auto_reply": {
-        "name": "AUTO REPLY",
-        "enabled": False,
-    },
+    "ghost_mode": False,
+    "auto_reply": False,
+    "specter": False,
+    "archive": False,
 }
 
-if WEB.is_dir():
-    app.mount(
-        "/static",
-        StaticFiles(directory=str(WEB)),
-        name="static",
-    )
+events = []
 
 
-def add_event(event_type: str, detail: str):
+def add_event(event_type: str, message: str):
     event = {
         "type": event_type,
-        "detail": detail,
-        "created_at": datetime.now().astimezone().isoformat(),
+        "message": message,
+        "time": datetime.now(timezone.utc).isoformat(),
     }
 
     with lock:
         events.insert(0, event)
-        del events[8:]
+        del events[100:]
 
     return event
 
 
-@app.get("/")
-async def home():
-    index_file = WEB / "index.html"
+if STATIC_DIR.exists():
+    app.mount(
+        "/static",
+        StaticFiles(directory=str(STATIC_DIR)),
+        name="static",
+    )
 
-    if not index_file.is_file():
-        raise HTTPException(
-            status_code=404,
-            detail="DARK.exe interface not found",
+
+@app.get("/", response_class=HTMLResponse)
+def home():
+    index_file = STATIC_DIR / "index.html"
+
+    if not index_file.exists():
+        return HTMLResponse(
+            "<h1>DARK.exe</h1><p>index.html not found</p>",
+            status_code=500,
         )
 
-    return FileResponse(index_file)
+    return HTMLResponse(index_file.read_text(encoding="utf-8"))
 
 
-@app.get("/api/health")
-async def health():
+@app.get("/api")
+def api_info():
     return {
-        "system": "DARK.exe",
-        "status": "online",
-        "version": app.version,
+        "name": "DARK.exe",
+        "version": "1.0.0",
+        "mode": "demo",
     }
 
 
+@app.get("/api/health")
 @app.get("/api/status")
-async def system_status():
+def health():
     with lock:
-        module_snapshot = {
-            key: value.copy()
-            for key, value in modules.items()
-        }
-
+        active = sum(modules.values())
         event_count = len(events)
 
     return {
-        "system": "DARK.exe",
         "status": "online",
-        "modules": module_snapshot,
+        "mode": "demo",
+        "active_modules": active,
         "event_count": event_count,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
 @app.get("/api/modules")
-async def get_modules():
+def get_modules():
     with lock:
-        return {
-            key: value.copy()
-            for key, value in modules.items()
-        }
+        return dict(modules)
 
 
 @app.post("/api/modules/{module_name}/toggle")
-async def toggle_module(module_name: str):
+def toggle_module(module_name: str):
     if module_name not in modules:
-        raise HTTPException(
-            status_code=404,
-            detail="Module not found",
-        )
+        return {
+            "ok": False,
+            "error": "Unknown module",
+        }
 
     with lock:
-        modules[module_name]["enabled"] = (
-            not modules[module_name]["enabled"]
-        )
-        enabled = modules[module_name]["enabled"]
-        module_title = modules[module_name]["name"]
+        modules[module_name] = not modules[module_name]
+        enabled = modules[module_name]
 
     add_event(
-        "MODULE",
-        f"{module_title}: {'ACTIVE' if enabled else 'STANDBY'}",
+        "MODULE_STATE",
+        f"{module_name}: {'active' if enabled else 'standby'}",
     )
 
     return {
         "ok": True,
         "module": module_name,
-        "enabled": enabled,
+        "active": enabled,
     }
 
 
 @app.get("/api/events")
-async def get_events():
+def get_events():
     with lock:
-        return list(events[:8])
+        return list(events)
 
 
 @app.post("/api/events/demo")
-async def demo_event():
+def create_demo_event():
     event = add_event(
-        "USER_SIGNAL",
-        "Test signal received by DARK.exe",
+        "DEMO",
+        "Demonstration event created.",
     )
-
-    return {
-        "ok": True,
-        "event": event,
-    }
+    return {"ok": True, "event": event}
 
 
-@app.get("/api")
-async def api_root():
-    return {
-        "system": "DARK.exe",
-        "endpoints": [
-            "/api/health",
-            "/api/status",
-            "/api/modules",
-            "/api/events",
-        ],
-    }
-
-
-@app.exception_handler(404)
-async def not_found_handler(request, exc):
-    if request.url.path.startswith("/api/"):
-        return JSONResponse(
-            status_code=404,
-            content={"error": "Endpoint not found"},
-        )
-
-    return JSONResponse(
-        status_code=404,
-        content={"error": "Page not found"},
-    )
+@app.get("/api/healthcheck")
+def healthcheck():
+    return {"ok": True}
