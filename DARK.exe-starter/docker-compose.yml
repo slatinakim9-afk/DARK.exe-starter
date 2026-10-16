@@ -2,12 +2,26 @@ services:
   app:
     build: .
     restart: unless-stopped
-    env_file: .env
+    env_file:
+      - .env
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dark}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-dark}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
   db:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -18,9 +32,13 @@ services:
     volumes:
       - dark_db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dark} -d ${POSTGRES_DB:-dark}"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
+
 volumes:
   dark_db:
