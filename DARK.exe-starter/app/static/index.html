@@ -1,142 +1,137 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080608">
-  <meta name="description" content="DARK.exe — системная панель управления">
-  <title>DARK.exe // CONTROL PANEL</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta name="description" content="DARK.exe — system control interface">
+  <title>DARK.exe — Control Center</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div class="scanlines"></div>
+  <div class="noise"></div>
 
-  <header>
-    <div class="brand">
-      <span class="brand-icon">⛧</span>
-      <div>
-        <b>DARK.exe</b>
-        <small>CONTROL PANEL // BUILD 0.2.0</small>
-      </div>
-    </div>
-
-    <div class="status">
-      <i></i>
-      <span id="statusText">ПРОВЕРКА СИСТЕМЫ...</span>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="brand-mark">D</span>
+      <span>DARK<span class="red">.exe</span><small>CONTROL SYSTEM</small></span>
+    </a>
+    <div class="connection">
+      <span class="pulse"></span>
+      <span id="statusText">CONNECTING...</span>
     </div>
   </header>
 
-  <main>
-    <section class="panel hero">
-      <small class="eyebrow">/// SYSTEM INITIALIZATION</small>
-      <div class="face">☠</div>
-      <h1>DARK<span class="red">.exe</span><br><em>CONTROL CENTER</em></h1>
-      <p>Система готова. Ожидание команды оператора.</p>
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> SECURE ENVIRONMENT / 001</div>
+        <h1>TAKE<br>CONTROL<span class="red">.</span></h1>
+        <p>Система активна. Контроль начинается здесь.</p>
+        <div class="hero-actions">
+          <button class="primary-button" id="signalBtn">
+            <span>ИНИЦИИРОВАТЬ СИГНАЛ</span><span>↗</span>
+          </button>
+          <span class="hero-meta">DARK CORE <b id="coreStatus">INITIALIZING</b></span>
+        </div>
+      </div>
 
-      <div class="progress"><span></span></div>
-
-      <div class="hero-meta">
-        <span>CORE: <b id="coreStatus">UNKNOWN</b></span>
-        <span>THREAT: <b class="red">UNKNOWN</b></span>
-        <span>ACCESS: <b class="red">LOCAL</b></span>
+      <div class="core-visual" aria-label="DARK core visualization">
+        <div class="core-ring ring-one"></div>
+        <div class="core-ring ring-two"></div>
+        <div class="core-ring ring-three"></div>
+        <div class="core-cross"></div>
+        <div class="core-center"><span>D</span></div>
+        <span class="orbit-label label-top">CORE // 001</span>
+        <span class="orbit-label label-bottom">SYSTEM ONLINE</span>
       </div>
     </section>
 
-    <section class="grid">
-      <article class="panel stat">
-        <small>СОСТОЯНИЕ ЯДРА</small>
-        <strong id="core">--</strong>
-        <span class="red">/// SYSTEM STATUS</span>
+    <section class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-label">SYSTEM STATUS</span>
+        <strong class="stat-value"><span class="pulse"></span> ONLINE</strong>
+        <span class="stat-foot">Основное ядро</span>
       </article>
-
-      <article class="panel stat">
-        <small>СИГНАЛ ОПЕРАТОРА</small>
-        <strong>666<span class="red">%</span></strong>
-        <span>/// SIGNAL READY</span>
+      <article class="stat-card">
+        <span class="stat-label">ACTIVE MODULES</span>
+        <strong class="stat-value" id="activeModules">00 <small>/ 02</small></strong>
+        <span class="stat-foot">Модули управления</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">EVENT LOG</span>
+        <strong class="stat-value" id="eventCount">001</strong>
+        <span class="stat-foot">Системные события</span>
       </article>
     </section>
 
-    <section class="panel modules">
-      <div class="head">
-        <b>МОДУЛИ СИСТЕМЫ</b>
-        <span class="red">02 MODULES</span>
+    <section class="section">
+      <div class="section-heading">
+        <div><span class="eyebrow">01 / CONFIGURATION</span><h2>МОДУЛИ <span class="red">СИСТЕМЫ</span></h2></div>
+        <span class="section-tag">2 MODULES</span>
       </div>
 
-      <article class="module">
-        <div class="module-icon">◈</div>
-        <div class="module-info">
+      <div class="modules-grid">
+        <article class="module-card">
+          <div class="module-top">
+            <div class="module-icon">◈</div>
+            <span class="module-index">MOD. 001</span>
+          </div>
           <h3>GHOST MODE</h3>
-          <p>Переключатель режима интерфейса. Не обеспечивает реальную анонимность.</p>
-          <small>COMMAND: <code>ghost_mode</code></small>
-        </div>
-        <div class="module-controls">
-          <span id="ghost_modeStatus" class="module-status">STANDBY</span>
-          <button id="ghost_modeBtn" class="small-button">ACTIVATE</button>
-        </div>
-      </article>
+          <p>Локальный режим скрытого присутствия в интерфейсе.</p>
+          <div class="module-bottom">
+            <span class="module-status" id="ghost_modeStatus">STANDBY</span>
+            <button class="toggle-button" id="ghost_modeBtn" type="button">АКТИВИРОВАТЬ <span>↗</span></button>
+          </div>
+        </article>
 
-      <article class="module">
-        <div class="module-icon">⌁</div>
-        <div class="module-info">
+        <article class="module-card">
+          <div class="module-top">
+            <div class="module-icon">⌘</div>
+            <span class="module-index">MOD. 002</span>
+          </div>
           <h3>AUTO REPLY</h3>
-          <p>Переключатель модуля автоответчика. Для отправки сообщений нужна отдельная интеграция.</p>
-          <small>COMMAND: <code>auto_reply</code></small>
-        </div>
-        <div class="module-controls">
-          <span id="auto_replyStatus" class="module-status">STANDBY</span>
-          <button id="auto_replyBtn" class="small-button">ACTIVATE</button>
-        </div>
-      </article>
+          <p>Демонстрационный модуль автоматизации ответов.</p>
+          <div class="module-bottom">
+            <span class="module-status" id="auto_replyStatus">STANDBY</span>
+            <button class="toggle-button" id="auto_replyBtn" type="button">АКТИВИРОВАТЬ <span>↗</span></button>
+          </div>
+        </article>
+      </div>
+      <p class="module-disclaimer">Модули пока переключают состояние панели и не выполняют внешних действий.</p>
     </section>
 
-    <section class="panel logs">
-      <div class="head">
-        <b>ЖУРНАЛ СОБЫТИЙ</b>
-        <span class="red"><i class="live-dot"></i> LIVE</span>
+    <section class="section">
+      <div class="section-heading">
+        <div><span class="eyebrow">02 / ACTIVITY</span><h2>ЖУРНАЛ <span class="red">СОБЫТИЙ</span></h2></div>
+        <span class="section-tag">LIVE FEED</span>
       </div>
 
-      <div id="events" aria-live="polite">
-        <div class="event">
-          <time>--:--:--</time>
-          <b class="red">[BOOT]</b>
-          <span>Ожидание ответа сервера...</span>
+      <div class="events-panel">
+        <div class="events-toolbar"><span><i class="pulse"></i> SYSTEM FEED</span><span id="eventTimestamp">WAITING FOR DATA...</span></div>
+        <div id="events" class="events-list">
+          <div class="empty-state">ИНИЦИАЛИЗАЦИЯ ЖУРНАЛА...</div>
         </div>
       </div>
-
-      <button id="signalBtn" class="primary-button">☠ ОТПРАВИТЬ СИГНАЛ</button>
-      <p id="notice">Нажатие создаст тестовую запись в журнале.</p>
     </section>
 
-    <section class="panel terminal">
-      <div class="head">
-        <b>ИНФОРМАЦИЯ</b>
-        <span class="red">READ ONLY</span>
+    <section class="terminal-panel">
+      <div class="terminal-header"><span><i></i><i></i><i></i></span><b>DARK_TERMINAL</b><span>SESSION 001</span></div>
+      <div class="terminal-content">
+        <p><span class="terminal-prompt">root@dark:~$</span> system_check --all</p>
+        <p class="terminal-output">Загрузка интерфейса управления...</p>
+        <p><span class="terminal-prompt">root@dark:~$</span> <span class="terminal-cursor">_</span></p>
       </div>
-
-      <div class="terminal-line">
-        <span class="red">root@dark:~$</span> system.status
-      </div>
-      <div class="terminal-line">
-        <span class="terminal-label">API</span>
-        <span>Проверка доступности сервера</span>
-      </div>
-      <div class="terminal-line">
-        <span class="terminal-label">EVENTS</span>
-        <span>Журнал последних событий</span>
-      </div>
-      <div class="terminal-line">
-        <span class="terminal-label">MODULES</span>
-        <span>Переключение статусов модулей</span>
-      </div>
-      <p class="terminal-note">Модули меняют внутренний статус панели. Внешние действия не выполняются без соответствующей интеграции.</p>
     </section>
 
-    <footer>
-      © DARK.exe // SYSTEM INTERFACE
-      <span>v0.2.0</span>
-    </footer>
+    <div id="notice" class="notice" role="status"></div>
   </main>
+
+  <footer class="footer">
+    <span>DARK<span class="red">.exe</span> <span class="footer-muted">© 2026</span></span>
+    <span>BUILT FOR THE UNKNOWN <span class="red">●</span></span>
+  </footer>
 
   <script src="/static/app.js"></script>
 </body>
