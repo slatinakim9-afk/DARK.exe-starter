@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI(title="DARK.exe API")
 
 ROOT = Path(__file__).resolve().parent.parent
-WEB = ROOT / "app" / "static"
+WEB = ROOT / "static"
 
 events = [
     {
