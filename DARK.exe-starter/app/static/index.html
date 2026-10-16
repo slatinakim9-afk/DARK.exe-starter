@@ -7,12 +7,13 @@
   <meta name="theme-color" content="#080608">
   <meta name="description" content="DARK.exe — интерфейс экспериментальной системы">
   <title>DARK.exe // UNKNOWN SYSTEM</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="/static/app.js" defer></script>
+  <script src="/static/app.js?v=2" defer></script>
+  <script src="/static/admin-panel.js?v=1" defer></script>
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -36,16 +37,11 @@
         <h1>TAKE<br><span class="red">CONTROL.</span></h1>
         <p>Неизвестная система обнаружена.<br>Источник сигнала не установлен.</p>
         <div class="hero-actions">
-          <button class="primary-button" id="signalBtn" type="button">
-            ИНИЦИИРОВАТЬ СИГНАЛ <span>↗</span>
-          </button>
-          <button class="secondary-button" id="scanBtn" type="button">
-            ЗАПУСТИТЬ СКАНИРОВАНИЕ
-          </button>
+          <button class="primary-button" id="signalBtn" type="button">ИНИЦИИРОВАТЬ СИГНАЛ <span>↗</span></button>
+          <button class="secondary-button" id="scanBtn" type="button">ЗАПУСТИТЬ СКАНИРОВАНИЕ</button>
         </div>
         <div class="hero-meta">SESSION // 001 <b id="heroState">CORE INITIALIZING</b></div>
       </div>
-
       <div class="core-visual" aria-label="Визуализация ядра">
         <div class="core-cross"></div>
         <div class="core-ring ring-one"></div>
@@ -86,97 +82,48 @@
 
     <section class="section">
       <div class="section-heading">
-        <div>
-          <div class="eyebrow"><span></span> 01 / CONTROL</div>
-          <h2>МОДУЛИ <span class="red">СИСТЕМЫ</span></h2>
-        </div>
+        <div><div class="eyebrow"><span></span> 01 / CONTROL</div><h2>МОДУЛИ <span class="red">СИСТЕМЫ</span></h2></div>
         <span class="section-tag">4 MODULES / LOCAL DEMO</span>
       </div>
-
       <div class="modules-grid">
         <article class="module-card" data-module="ghost_mode">
-          <div class="module-top">
-            <span class="module-icon">◈</span>
-            <span class="module-index">MOD. 001 // PRESENCE</span>
-          </div>
+          <div class="module-top"><span class="module-icon">◈</span><span class="module-index">MOD. 001 // PRESENCE</span></div>
           <h3>GHOST MODE</h3>
           <p>Локальный визуальный режим скрытого присутствия в интерфейсе.</p>
-          <div class="module-bottom">
-            <span class="module-status" id="ghost_modeStatus">STANDBY</span>
-            <button class="toggle-button" id="ghost_modeBtn" data-module="ghost_mode" type="button">АКТИВИРОВАТЬ ↗</button>
-          </div>
+          <div class="module-bottom"><span class="module-status" id="ghost_modeStatus">STANDBY</span><button class="toggle-button" id="ghost_modeBtn" data-module="ghost_mode" type="button">АКТИВИРОВАТЬ ↗</button></div>
         </article>
-
         <article class="module-card" data-module="auto_reply">
-          <div class="module-top">
-            <span class="module-icon">⌘</span>
-            <span class="module-index">MOD. 002 // RESPONSE</span>
-          </div>
+          <div class="module-top"><span class="module-icon">⌘</span><span class="module-index">MOD. 002 // RESPONSE</span></div>
           <h3>AUTO REPLY</h3>
           <p>Демонстрационный модуль автоматизации ответов.</p>
-          <div class="module-bottom">
-            <span class="module-status" id="auto_replyStatus">STANDBY</span>
-            <button class="toggle-button" id="auto_replyBtn" data-module="auto_reply" type="button">АКТИВИРОВАТЬ ↗</button>
-          </div>
+          <div class="module-bottom"><span class="module-status" id="auto_replyStatus">STANDBY</span><button class="toggle-button" id="auto_replyBtn" data-module="auto_reply" type="button">АКТИВИРОВАТЬ ↗</button></div>
         </article>
-
         <article class="module-card" data-module="specter">
-          <div class="module-top">
-            <span class="module-icon">⟁</span>
-            <span class="module-index">MOD. 003 // SCANNER</span>
-          </div>
+          <div class="module-top"><span class="module-icon">⟁</span><span class="module-index">MOD. 003 // SCANNER</span></div>
           <h3>SPECTER SCAN</h3>
           <p>Имитация сканирования состояния интерфейса с визуальным отчётом.</p>
-          <div class="module-bottom">
-            <span class="module-status" id="specterStatus">STANDBY</span>
-            <button class="toggle-button" id="specterBtn" data-action="scan" type="button">СКАНИРОВАТЬ ↗</button>
-          </div>
+          <div class="module-bottom"><span class="module-status" id="specterStatus">STANDBY</span><button class="toggle-button" id="specterBtn" data-action="scan" type="button">СКАНИРОВАТЬ ↗</button></div>
         </article>
-
         <article class="module-card" data-module="archive">
-          <div class="module-top">
-            <span class="module-icon">▤</span>
-            <span class="module-index">MOD. 004 // MEMORY</span>
-          </div>
+          <div class="module-top"><span class="module-icon">▤</span><span class="module-index">MOD. 004 // MEMORY</span></div>
           <h3>BLACK ARCHIVE</h3>
           <p>Локальный архив событий этой сессии и история действий панели.</p>
-          <div class="module-bottom">
-            <span class="module-status" id="archiveStatus">READY</span>
-            <button class="toggle-button" id="archiveBtn" data-action="archive" type="button">ОТКРЫТЬ АРХИВ ↗</button>
-          </div>
+          <div class="module-bottom"><span class="module-status" id="archiveStatus">READY</span><button class="toggle-button" id="archiveBtn" data-action="archive" type="button">ОТКРЫТЬ АРХИВ ↗</button></div>
         </article>
       </div>
-
       <p class="module-disclaimer">Модули работают в демонстрационном режиме. Внешние системы не контролируются.</p>
     </section>
 
     <section class="section" id="diagnostics">
       <div class="section-heading">
-        <div>
-          <div class="eyebrow"><span></span> 02 / DIAGNOSTICS</div>
-          <h2>СОСТОЯНИЕ <span class="red">ЯДРА</span></h2>
-        </div>
+        <div><div class="eyebrow"><span></span> 02 / DIAGNOSTICS</div><h2>СОСТОЯНИЕ <span class="red">ЯДРА</span></h2></div>
         <span class="section-tag">LIVE DIAGNOSTICS</span>
       </div>
-
       <div class="diagnostic-grid">
-        <article class="diagnostic-card">
-          <div class="diagnostic-top"><span>CORE INTEGRITY</span><span id="integrityValue">98%</span></div>
-          <div class="meter"><span id="integrityMeter" style="width:98%"></span></div>
-          <p>Целостность интерфейса</p>
-        </article>
-        <article class="diagnostic-card">
-          <div class="diagnostic-top"><span>LINK STABILITY</span><span id="linkValue">72%</span></div>
-          <div class="meter"><span id="linkMeter" style="width:72%"></span></div>
-          <p>Визуальный индикатор связи</p>
-        </article>
-        <article class="diagnostic-card">
-          <div class="diagnostic-top"><span>PROCESS LOAD</span><span id="loadValue">31%</span></div>
-          <div class="meter"><span id="loadMeter" style="width:31%"></span></div>
-          <p>Демонстрационная нагрузка</p>
-        </article>
+        <article class="diagnostic-card"><div class="diagnostic-top"><span>CORE INTEGRITY</span><span id="integrityValue">98%</span></div><div class="meter"><span id="integrityMeter" style="width:98%"></span></div><p>Целостность интерфейса</p></article>
+        <article class="diagnostic-card"><div class="diagnostic-top"><span>LINK STABILITY</span><span id="linkValue">72%</span></div><div class="meter"><span id="linkMeter" style="width:72%"></span></div><p>Визуальный индикатор связи</p></article>
+        <article class="diagnostic-card"><div class="diagnostic-top"><span>PROCESS LOAD</span><span id="loadValue">31%</span></div><div class="meter"><span id="loadMeter" style="width:31%"></span></div><p>Демонстрационная нагрузка</p></article>
       </div>
-
       <div class="action-grid">
         <button class="action-tile" id="diagnosticBtn" type="button"><span>⌬</span><b>ПОЛНАЯ ДИАГНОСТИКА</b><small>Проверить интерфейс</small></button>
         <button class="action-tile" id="refreshBtn" type="button"><span>⟳</span><b>СИНХРОНИЗАЦИЯ</b><small>Обновить данные панели</small></button>
@@ -186,57 +133,26 @@
     </section>
 
     <section class="section" id="eventsSection">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow"><span></span> 03 / ACTIVITY</div>
-          <h2>ЖУРНАЛ <span class="red">СОБЫТИЙ</span></h2>
-        </div>
-        <span class="section-tag">LOCAL EVENT FEED</span>
-      </div>
+      <div class="section-heading"><div><div class="eyebrow"><span></span> 03 / ACTIVITY</div><h2>ЖУРНАЛ <span class="red">СОБЫТИЙ</span></h2></div><span class="section-tag">LOCAL EVENT FEED</span></div>
       <div class="events-panel">
-        <div class="events-toolbar">
-          <span><span class="pulse"></span> SYSTEM FEED</span>
-          <span id="eventTimestamp">WAITING FOR DATA...</span>
-        </div>
-        <div class="events-list" id="events" aria-live="polite">
-          <div class="empty-state">ИНИЦИАЛИЗАЦИЯ ЖУРНАЛА...</div>
-        </div>
+        <div class="events-toolbar"><span><span class="pulse"></span> SYSTEM FEED</span><span id="eventTimestamp">WAITING FOR DATA...</span></div>
+        <div class="events-list" id="events" aria-live="polite"><div class="empty-state">ИНИЦИАЛИЗАЦИЯ ЖУРНАЛА...</div></div>
       </div>
     </section>
 
     <section class="section" id="archiveSection">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow"><span></span> 04 / BLACK ARCHIVE</div>
-          <h2>ЗАПЕЧАТАННЫЙ <span class="red">АРХИВ</span></h2>
-        </div>
-        <span class="section-tag">SESSION STORAGE</span>
-      </div>
+      <div class="section-heading"><div><div class="eyebrow"><span></span> 04 / BLACK ARCHIVE</div><h2>ЗАПЕЧАТАННЫЙ <span class="red">АРХИВ</span></h2></div><span class="section-tag">SESSION STORAGE</span></div>
       <div class="archive-panel">
         <div class="archive-symbol">◈</div>
-        <div class="archive-copy">
-          <h3>ФРАГМЕНТ DX-001</h3>
-          <p>Архив текущей сессии. Здесь отображаются доступные локальные события.</p>
-          <span id="archiveCount">ЗАПИСЕЙ: 0</span>
-        </div>
+        <div class="archive-copy"><h3>ФРАГМЕНТ DX-001</h3><p>Архив текущей сессии. Здесь отображаются доступные локальные события.</p><span id="archiveCount">ЗАПИСЕЙ: 0</span></div>
         <button class="secondary-button" id="viewArchiveBtn" type="button">ПРОСМОТРЕТЬ ↗</button>
       </div>
     </section>
 
     <section class="section">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow"><span></span> 05 / TERMINAL</div>
-          <h2>DARK<span class="red">_TERMINAL</span></h2>
-        </div>
-        <span class="section-tag">SESSION 001</span>
-      </div>
+      <div class="section-heading"><div><div class="eyebrow"><span></span> 05 / TERMINAL</div><h2>DARK<span class="red">_TERMINAL</span></h2></div><span class="section-tag">SESSION 001</span></div>
       <div class="terminal-panel">
-        <div class="terminal-header">
-          <span><i></i><i></i><i></i></span>
-          <b>root@dark:~</b>
-          <span>LOCAL DEMO</span>
-        </div>
+        <div class="terminal-header"><span><i></i><i></i><i></i></span><b>root@dark:~</b><span>LOCAL DEMO</span></div>
         <div class="terminal-content" id="terminalOutput" aria-live="polite">
           <div class="terminal-prompt">root@dark:~$ system_check --all</div>
           <div class="terminal-output">Загрузка интерфейса управления...</div>
@@ -253,21 +169,13 @@
     </section>
 
     <section class="section">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow"><span></span> 06 / CLASSIFIED</div>
-          <h2>НЕИЗВЕСТНЫЙ <span class="red">ПРОТОКОЛ</span></h2>
-        </div>
-      </div>
+      <div class="section-heading"><div><div class="eyebrow"><span></span> 06 / CLASSIFIED</div><h2>НЕИЗВЕСТНЫЙ <span class="red">ПРОТОКОЛ</span></h2></div></div>
       <div class="protocol-panel">
         <div class="protocol-status"><span class="pulse"></span> SIGNAL DETECTED</div>
         <h3>ТЫ НЕ ДОЛЖЕН БЫЛ ЭТО УВИДЕТЬ.</h3>
         <p>Источник: неизвестен. Происхождение: не установлено. Статус: наблюдение продолжается.</p>
         <button class="primary-button" id="revealBtn" type="button">РАСШИФРОВАТЬ ФРАГМЕНТ ↗</button>
-        <div class="reveal-content" id="revealContent" hidden>
-          <span>FRAGMENT // 001</span>
-          <p>Система ждала подключения. Теперь сессия активна.</p>
-        </div>
+        <div class="reveal-content" id="revealContent" hidden><span>FRAGMENT // 001</span><p>Система ждала подключения. Теперь сессия активна.</p></div>
       </div>
     </section>
   </main>
@@ -275,7 +183,9 @@
   <footer class="footer">
     <span>DARK.exe © 2026</span>
     <span class="footer-muted">BUILT FOR THE UNKNOWN</span>
-    <span><span class="pulse"></span> <span id="footerStatus">SYSTEM ONLINE</span></span>
+    <button class="system-admin-trigger" id="systemAdminTrigger" type="button" title="Открыть вход администратора">
+      <span class="pulse"></span><span id="footerStatus">SYSTEM ONLINE</span>
+    </button>
   </footer>
 
   <div class="notice" id="notice" role="status" aria-live="polite"></div>
