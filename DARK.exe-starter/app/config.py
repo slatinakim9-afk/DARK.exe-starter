@@ -1,4 +1,6 @@
+
 import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,4 +16,11 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()
+settings = Settings(
+    bot_token=os.getenv("BOT_TOKEN", ""),
+    webapp_url=os.getenv(
+        "WEBAPP_URL",
+        "https://dark-exe-starter.vercel.app",
+    ),
+    database_url=os.getenv("DATABASE_URL", ""),
+)
